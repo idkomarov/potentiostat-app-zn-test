@@ -1,5 +1,5 @@
-from scripts.potentiostatgui import PotentiostatGUI
+from zntest.app import ZnApplication
 
 if __name__ == "__main__":
-    app = PotentiostatGUI()
+    app = ZnApplication()
     app.start()
