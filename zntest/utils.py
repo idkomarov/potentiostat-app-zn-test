@@ -12,7 +12,7 @@ def get_available_ports():
 def connect(port):
     pstat_obj = None
     try:
-        pstat_obj = Potentiostat(port)
+        pstat_obj = Potentiostat(port, timeout=1.5)
     except SerialException or JSONDecodeError:
         pass
     return pstat_obj

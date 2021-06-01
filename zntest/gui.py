@@ -18,7 +18,7 @@ class Connection:
         self.description_label.pack(side=LEFT, padx=5)
 
         self.device_ports_combobox = Combobox(self.frame, width=10, values=('None',),
-                                              postcommand=self.get_device_ports_combobox_values, state='readonly')
+                                              postcommand=self.set_device_ports_combobox_values, state='readonly')
         self.device_ports_combobox.current(0)
         self.device_ports_combobox.pack(side=LEFT, padx=5)
 
@@ -26,7 +26,7 @@ class Connection:
                                         command=lambda: self.click_connection_button(set_pstat_obj_fun))
         self.connection_button.pack(side=LEFT, padx=5)
 
-    def get_device_ports_combobox_values(self):
+    def set_device_ports_combobox_values(self):
         ports = get_available_ports()
         ports.insert(0, 'None')
         self.device_ports_combobox['values'] = ports
@@ -48,15 +48,14 @@ class Connection:
             messagebox.showwarning('Warning!', 'Select one of available ports')
 
 
-class ConstantVoltageProperties:
+class ConstantVoltageSingleTestProperties:
     """
-        Class initializing constant voltage properties frame.
+        Class initializing constant voltage single test properties frame.
     """
 
-    # TODO: add input values validation
     def __init__(self, parent, test_number):
         self.frame = LabelFrame(parent, text=f'Constant Voltage Test #{test_number} Properties')
-        self.frame.pack(side=LEFT)
+        self.frame.pack(side=LEFT, anchor=N)
 
         self.current_range_label = Label(self.frame, text='Current range')
         self.current_range_label.pack(side=TOP)
@@ -95,8 +94,8 @@ class ConstantVoltageProperties:
         self.value_label.pack(side=TOP)
 
         # TODO: check value range
-        self.value_input_value = DoubleVar(value=-1.000)
-        self.value_input_value.trace("w", lambda name, index, mode: self.update_quite_value())
+        self.value_input_value = StringVar(value=-1.000)
+        self.value_input_value.trace('w', lambda name, index, mode: self.update_quite_value())
         self.value_input = Spinbox(self.frame, from_=-10.0, to=10.0, increment=1.5, textvariable=self.value_input_value,
                                    format='%.3f')
         self.value_input.pack(side=TOP)
@@ -269,8 +268,8 @@ class MainApplication:
         self.tests.description_label = Label(self.tests, text='Set tests properties')
         self.tests.description_label.pack(side=TOP, anchor=NW, padx=5)
 
-        self.constant_voltage_test_1_properties = ConstantVoltageProperties(self.tests, 1)
-        self.constant_voltage_test_2_properties = ConstantVoltageProperties(self.tests, 2)
+        self.constant_voltage_test_1_properties = ConstantVoltageSingleTestProperties(self.tests, 1)
+        self.constant_voltage_test_2_properties = ConstantVoltageSingleTestProperties(self.tests, 2)
         self.square_wave_voltammetry_test_properties = SquareWaveVoltammetrySingleTestProperties(self.tests)
 
     def set_initial_properties(self):
