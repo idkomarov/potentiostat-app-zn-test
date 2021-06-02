@@ -1,3 +1,5 @@
+import csv
+import os
 from datetime import datetime
 from json.decoder import JSONDecodeError
 
@@ -51,6 +53,35 @@ def run_constant_voltage_test(pstat, context):
 
         plt.show(block=False)
 
+    if context['save_data']:
+        output_file_name = '{}_{}.csv'.format(context['compound'], start_time.strftime('%Y-%m-%d__%H-%M-%S'))
+        output_file_folder = os.path.join(os.getcwd(), 'data', 'out', 'constant')
+        if os.path.exists(output_file_folder) is False:
+            os.makedirs(output_file_folder)
+
+        with open(os.path.join(output_file_folder, output_file_name), 'w', encoding='utf-8', newline='') as output_csv:
+            writer = csv.writer(output_csv, delimiter=',')
+            writer.writerow(['time', 'volt', 'current', 'compound'])
+            for i in range(len(t)):
+                single_time_value = f'{t[i]:.4f}'
+                single_potential_value = f'{volt[i]:.4f}'
+                single_current_value = f'{curr[i]:.4f}'
+                row = [single_time_value, single_potential_value, single_current_value, context['compound']]
+                writer.writerow(row)
+
+        database_file_path = os.path.join(os.getcwd(), 'data', 'out', 'constant', 'database.csv')
+        with open(os.path.join(database_file_path), 'a', encoding='utf-8', newline='') as output_csv:
+            writer = csv.writer(output_csv, delimiter=',')
+            writer.writerow(['time', 'volt', 'current', 'compound'])
+            for i in range(len(t)):
+                single_time_value = f'{t[i]:.4f}'
+                single_potential_value = f'{volt[i]:.4f}'
+                single_current_value = f'{curr[i]:.4f}'
+                row = [single_time_value, single_potential_value, single_current_value, context['compound']]
+                writer.writerow(row)
+            writer.writerow([])
+            writer.writerow([])
+
 
 def run_square_wave_voltammetry_test(pstat, context):
     test_name = 'squareWave'
@@ -82,3 +113,19 @@ def run_square_wave_voltammetry_test(pstat, context):
         plt.grid('on')
 
         plt.show(block=False)
+
+    if context['save_data']:
+        output_file_name = '{}_{}.csv'.format(context['compound'], start_time.strftime('%Y-%m-%d__%H-%M-%S'))
+        output_file_folder = os.path.join(os.getcwd(), 'data', 'out', 'squarewave')
+        if os.path.exists(output_file_folder) is False:
+            os.makedirs(output_file_folder)
+
+        with open(os.path.join(output_file_folder, output_file_name), 'w', encoding='utf-8', newline='') as output_csv:
+            writer = csv.writer(output_csv, delimiter=',')
+            writer.writerow(['time', 'volt', 'current', 'compound'])
+            for i in range(len(t)):
+                single_time_value = f'{t[i]:.4f}'
+                single_potential_value = f'{volt[i]:.4f}'
+                single_current_value = f'{curr[i]:.4f}'
+                row = [single_time_value, single_potential_value, single_current_value, context['compound']]
+                writer.writerow(row)

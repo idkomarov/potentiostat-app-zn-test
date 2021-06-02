@@ -500,7 +500,7 @@ class MainApplication:
         }
         context['create_plot'] = self.square_wave_voltammetry_test_properties.is_show_plot_value.get()
         context['compound'] = self.test_options.compound_input_value.get()
-        context['save_data'] = self.test_options.is_save_constant_voltage_tests_output_data.get()
+        context['save_data'] = self.test_options.is_save_square_wave_voltammetry_test_output_data.get()
         utils.run_square_wave_voltammetry_test(self.pstat, context)
 
     def run_test(self):
