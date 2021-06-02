@@ -249,6 +249,57 @@ class SquareWaveVoltammetrySingleTestProperties:
         self.quite_value_input.set(self.start_value_input_value.get())
 
 
+class ZnTestOptions:
+    """
+        Class initializing 'Zn test' options frame including run test button.
+    """
+
+    def __init__(self, parent):
+        self.frame = LabelFrame(parent, text='Test options')
+        self.frame.pack(side=LEFT, anchor=NW)
+
+        self.compound_label = Label(self.frame, text='Compound')
+        self.compound_label.pack(side=TOP)
+
+        self.compound_input_value = StringVar(value='ABC')
+        self.compound_input_value.trace('w', lambda name, index, mode: self.limit_compound_entry())
+        self.compound_input = Entry(self.frame, textvariable=self.compound_input_value)
+        self.compound_input.pack(side=TOP)
+
+        self.is_save_constant_voltage_tests_output_data = BooleanVar(value=1)
+        self.is_save_constant_voltage_tests_checkbox = Checkbutton(self.frame, text='Save constant voltage output data',
+                                                                   variable=self.is_save_constant_voltage_tests_output_data)
+        self.is_save_constant_voltage_tests_checkbox.pack(side=TOP)
+
+        self.is_save_square_wave_voltammetry_test_output_data = BooleanVar(value=1)
+        self.is_save_square_wave_voltammetry_test_checkbox = Checkbutton(self.frame,
+                                                                         text='Save square voltammetry output data',
+                                                                         variable=self.is_save_square_wave_voltammetry_test_output_data)
+        self.is_save_square_wave_voltammetry_test_checkbox.pack(side=TOP)
+
+        self.run_test_button = Button(self.frame, text='Run',
+                                      command=lambda: self.click_run_test_button())
+        self.run_test_button.pack(side=TOP)
+
+        self.disable_all_elements()
+
+    def disable_all_elements(self):
+        for element in self.frame.winfo_children():
+            element.config(state=DISABLED)
+
+    def enable_all_elements(self):
+        for element in self.frame.winfo_children():
+            element.config(state=NORMAL)
+
+    def limit_compound_entry(self):
+        new_entry_value = self.compound_input_value.get()
+        if len(new_entry_value) > 15:
+            self.compound_input_value.set(new_entry_value[:15])
+
+    def click_run_test_button(self):
+        pass
+
+
 class MainApplication:
     """
         Class initializing application main window.
@@ -261,7 +312,7 @@ class MainApplication:
 
         self.set_initial_properties()
 
-        self.connection = Connection(parent, self.set_pstat_obj)
+        self.connection = Connection(self.parent, self.set_pstat_obj)
 
         self.tests = LabelFrame(self.parent, text='Tests')
         self.tests.pack(side=TOP, anchor=NW)
@@ -271,6 +322,7 @@ class MainApplication:
         self.constant_voltage_test_1_properties = ConstantVoltageSingleTestProperties(self.tests, 1)
         self.constant_voltage_test_2_properties = ConstantVoltageSingleTestProperties(self.tests, 2)
         self.square_wave_voltammetry_test_properties = SquareWaveVoltammetrySingleTestProperties(self.tests)
+        self.test_options = ZnTestOptions(self.parent)
 
     def set_initial_properties(self):
         self.parent.title('Potentiostat App. Zn test')
@@ -289,3 +341,5 @@ class MainApplication:
 
         self.square_wave_voltammetry_test_properties.enable_all_elements()
         self.square_wave_voltammetry_test_properties.set_current_range_values(available_current_ranges)
+
+        self.test_options.enable_all_elements()
