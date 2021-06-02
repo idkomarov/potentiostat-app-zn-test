@@ -12,7 +12,7 @@ class Connection:
 
     def __init__(self, parent, set_pstat_obj_fun):
         self.frame = LabelFrame(parent, text='Connection')
-        self.frame.pack(side=TOP, anchor=NW)
+        self.frame.pack(side=TOP)
 
         self.description_label = Label(self.frame, text='Select potentiostat connected port')
         self.description_label.pack(side=LEFT, padx=5)
@@ -54,8 +54,8 @@ class ConstantVoltageSingleTestProperties:
     """
 
     def __init__(self, parent, test_number):
-        self.frame = LabelFrame(parent, text=f'Constant Voltage Test #{test_number} Properties')
-        self.frame.pack(side=LEFT, anchor=N)
+        self.frame = LabelFrame(parent, text=f'Constant Voltage Test #{test_number}')
+        self.frame.pack(side=LEFT, anchor=NW)
 
         self.current_range_label = Label(self.frame, text='Current range')
         self.current_range_label.pack(side=TOP)
@@ -177,8 +177,8 @@ class SquareWaveVoltammetrySingleTestProperties:
     """
 
     def __init__(self, parent):
-        self.frame = LabelFrame(parent, text=f'Square Wave Voltammetry Properties')
-        self.frame.pack(side=LEFT, anchor=N)
+        self.frame = LabelFrame(parent, text=f'Square Wave Voltammetry')
+        self.frame.pack(side=LEFT, anchor=NW)
 
         self.current_range_label = Label(self.frame, text='Current range')
         self.current_range_label.pack(side=TOP)
@@ -356,7 +356,7 @@ class ZnTestOptions:
         self.run_test_fun = run_test_fun
 
         self.frame = LabelFrame(parent, text='Test options')
-        self.frame.pack(side=LEFT, anchor=NW)
+        self.frame.pack(side=TOP)
 
         self.compound_label = Label(self.frame, text='Compound')
         self.compound_label.pack(side=TOP)
@@ -418,10 +418,8 @@ class MainApplication:
 
         self.connection = Connection(self.parent, self.set_pstat_obj)
 
-        self.tests = LabelFrame(self.parent, text='Tests')
-        self.tests.pack(side=TOP, anchor=NW)
-        self.tests.description_label = Label(self.tests, text='Set tests properties')
-        self.tests.description_label.pack(side=TOP, anchor=NW, padx=5)
+        self.tests = LabelFrame(self.parent, text='Inner tests')
+        self.tests.pack(side=TOP)
 
         self.constant_voltage_test_1_properties = ConstantVoltageSingleTestProperties(self.tests, 1)
         self.constant_voltage_test_2_properties = ConstantVoltageSingleTestProperties(self.tests, 2)
@@ -434,8 +432,14 @@ class MainApplication:
 
     def set_initial_properties(self):
         self.parent.title('Potentiostat App. Zn test')
-        self.parent.geometry('634x600')
+        width = 600
+        height = 580
+        self.parent.geometry(f'{width}x{height}')
         self.parent.resizable(False, False)
+
+        main_window_position_horizontal = int(self.parent.winfo_screenwidth() / 2 - width / 2)
+        main_window_position_vertical = int(self.parent.winfo_screenheight() / 2 - height / 2)
+        self.parent.geometry(f'+{main_window_position_horizontal}+{main_window_position_vertical}')
 
     def set_pstat_obj(self, pstat):
         self.pstat = pstat
@@ -454,7 +458,7 @@ class MainApplication:
 
     def run_constant_voltage_test_1(self):
         context = {}
-        context['title'] = self.constant_voltage_test_1_properties.frame['text'][:-11]
+        context['title'] = self.constant_voltage_test_1_properties.frame['text']
         context['current_range'] = self.constant_voltage_test_1_properties.current_range_combo.get()
         context['sample_rate'] = int(self.constant_voltage_test_1_properties.sample_rate_input_value.get())
         context['param'] = {
@@ -470,7 +474,7 @@ class MainApplication:
 
     def run_constant_voltage_test_2(self):
         context = {}
-        context['title'] = self.constant_voltage_test_2_properties.frame['text'][:-11]
+        context['title'] = self.constant_voltage_test_2_properties.frame['text']
         context['current_range'] = self.constant_voltage_test_2_properties.current_range_combo.get()
         context['sample_rate'] = int(self.constant_voltage_test_2_properties.sample_rate_input_value.get())
         context['param'] = {
@@ -486,7 +490,7 @@ class MainApplication:
 
     def run_square_wave_voltammetry_test(self):
         context = {}
-        context['title'] = self.square_wave_voltammetry_test_properties.frame['text'][:-11]
+        context['title'] = self.square_wave_voltammetry_test_properties.frame['text']
         context['current_range'] = self.square_wave_voltammetry_test_properties.current_range_combo.get()
         context['sample_rate'] = int(self.square_wave_voltammetry_test_properties.sample_rate_input_value.get())
         context['param'] = {
