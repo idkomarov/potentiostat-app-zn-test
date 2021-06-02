@@ -28,9 +28,9 @@ def run_constant_voltage_test(pstat, context):
     pstat.set_sample_rate(context['sample_rate'])
 
     start_time = datetime.now()
-    print('{}:\t{} is starting'.format(start_time.strftime("%H:%M:%S"), context['title']))
+    print('[{}]\t{} is starting'.format(start_time.strftime("%H:%M:%S"), context['title']))
     t, volt, curr = pstat.run_test(test_name, param=context['param'], display=None)
-    print('{}:\t{} is finished'.format(datetime.now().strftime("%H:%M:%S"), context['title']))
+    print('[{}]\t{} is finished'.format(datetime.now().strftime("%H:%M:%S"), context['title']))
 
     if context['create_plot']:
         plt.figure(1)
@@ -54,7 +54,7 @@ def run_constant_voltage_test(pstat, context):
         plt.show(block=False)
 
     if context['save_data']:
-        output_file_name = '{}_{}.csv'.format(context['compound'], start_time.strftime('%Y-%m-%d__%H-%M-%S'))
+        output_file_name = '{}__{}.csv'.format(context['compound'], start_time.strftime('%Y-%m-%d__%H-%M-%S'))
         output_file_folder = os.path.join(os.getcwd(), 'data', 'out', 'constant')
         if os.path.exists(output_file_folder) is False:
             os.makedirs(output_file_folder)
@@ -89,9 +89,9 @@ def run_square_wave_voltammetry_test(pstat, context):
     pstat.set_sample_rate(context['sample_rate'])
 
     start_time = datetime.now()
-    print('{}:\t{} is starting'.format(start_time.strftime("%H:%M:%S"), context['title']))
+    print('[{}]\t{} is starting'.format(start_time.strftime("%H:%M:%S"), context['title']))
     t, volt, curr = pstat.run_test(test_name, param=context['param'], display=None)
-    print('{}:\t{} finished'.format(datetime.now().strftime("%H:%M:%S"), context['title']))
+    print('[{}]\t{} finished'.format(datetime.now().strftime("%H:%M:%S"), context['title']))
 
     if context['create_plot']:
         plt.figure(1)
@@ -115,7 +115,7 @@ def run_square_wave_voltammetry_test(pstat, context):
         plt.show(block=False)
 
     if context['save_data']:
-        output_file_name = '{}_{}.csv'.format(context['compound'], start_time.strftime('%Y-%m-%d__%H-%M-%S'))
+        output_file_name = '{}__{}.csv'.format(context['compound'], start_time.strftime('%Y-%m-%d__%H-%M-%S'))
         output_file_folder = os.path.join(os.getcwd(), 'data', 'out', 'squarewave')
         if os.path.exists(output_file_folder) is False:
             os.makedirs(output_file_folder)

@@ -511,3 +511,4 @@ class MainApplication:
         self.run_constant_voltage_test_1()
         self.run_constant_voltage_test_2()
         self.run_square_wave_voltammetry_test()
+        print()
