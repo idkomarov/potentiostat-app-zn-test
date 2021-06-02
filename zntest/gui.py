@@ -67,7 +67,7 @@ class ConstantVoltageSingleTestProperties:
         self.sample_rate_label.pack(side=TOP)
 
         # TODO: check sample rate range
-        self.sample_rate_input_value = IntVar(value=100)
+        self.sample_rate_input_value = StringVar(value=100)
         self.sample_rate_input = Spinbox(self.frame, from_=1, to=200, increment=50,
                                          textvariable=self.sample_rate_input_value)
         self.sample_rate_input.pack(side=TOP)
@@ -76,7 +76,7 @@ class ConstantVoltageSingleTestProperties:
         self.quite_value_label.pack(side=TOP)
 
         # TODO: check quite value range
-        self.quite_value_input_value = DoubleVar(value=-1.000)
+        self.quite_value_input_value = StringVar(value=-1.000)
         self.quite_value_input = Spinbox(self.frame, from_=-10.0, to=10.0, increment=1.5,
                                          textvariable=self.quite_value_input_value, format='%.3f')
         self.quite_value_input.pack(side=TOP)
@@ -85,7 +85,7 @@ class ConstantVoltageSingleTestProperties:
         self.quite_time_label.pack(side=TOP)
 
         # TODO: check quite time range
-        self.quite_time_input_value = IntVar(value=1000)
+        self.quite_time_input_value = StringVar(value=1000)
         self.quite_time_input = Spinbox(self.frame, from_=0, to=10000, increment=1000,
                                         textvariable=self.quite_time_input_value)
         self.quite_time_input.pack(side=TOP)
@@ -104,7 +104,7 @@ class ConstantVoltageSingleTestProperties:
         self.duration_label.pack(side=TOP)
 
         # TODO: check duration range
-        self.duration_input_value = IntVar(value=20000)
+        self.duration_input_value = StringVar(value=20000)
         self.duration_input = Spinbox(self.frame, from_=1000, to=100000, increment=5000,
                                       textvariable=self.duration_input_value)
         self.duration_input.pack(side=TOP)
@@ -133,6 +133,43 @@ class ConstantVoltageSingleTestProperties:
     def update_quite_value(self):
         self.quite_value_input.set(self.value_input_value.get())
 
+    def is_valid(self):
+        properties_name = self.frame['text']
+        try:
+            sample_rate = int(self.sample_rate_input_value.get())
+            if not (1 <= sample_rate <= 200):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nSample rate value must be in range [1; 200]')
+                return FALSE
+
+            quite_value = float(self.quite_value_input_value.get())
+            if not (-10.0 <= quite_value <= 10.0):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nQuite value must be in range [-10; 10]')
+                return FALSE
+
+            quite_time = int(self.quite_time_input.get())
+            if not (0 <= quite_time <= 10000):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nQuite time must be in range [0; 10000]')
+                return FALSE
+
+            value = float(self.value_input_value.get())
+            if not (-10.0 <= value <= 10.0):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nQuite value must be in range [-10; 10]')
+
+            duration = int(self.duration_input_value.get())
+            if not (1000 <= duration <= 100000):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nQuite value must be in range [1000; 10000]')
+
+        except ValueError as ve:
+            messagebox.showerror('The error occurred!', f'{properties_name}\n{ve.__str__().capitalize()}')
+            return FALSE
+
+        return TRUE
+
 
 class SquareWaveVoltammetrySingleTestProperties:
     """
@@ -153,7 +190,7 @@ class SquareWaveVoltammetrySingleTestProperties:
         self.sample_rate_label.pack(side=TOP)
 
         # TODO: check sample rate range
-        self.sample_rate_input_value = IntVar(value=100)
+        self.sample_rate_input_value = StringVar(value=100)
         self.sample_rate_input = Spinbox(self.frame, from_=1, to=200, increment=50,
                                          textvariable=self.sample_rate_input_value)
         self.sample_rate_input.pack(side=TOP)
@@ -171,7 +208,7 @@ class SquareWaveVoltammetrySingleTestProperties:
         self.quite_time_label.pack(side=TOP)
 
         # TODO: check quite time range
-        self.quite_time_input_value = IntVar(value=1000)
+        self.quite_time_input_value = StringVar(value=1000)
         self.quite_time_input = Spinbox(self.frame, from_=0, to=10000, increment=1000,
                                         textvariable=self.quite_time_input_value)
         self.quite_time_input.pack(side=TOP)
@@ -180,7 +217,7 @@ class SquareWaveVoltammetrySingleTestProperties:
         self.amplitude_label.pack(side=TOP)
 
         # TODO: check amplitude range
-        self.amplitude_input_value = DoubleVar(value=0.05)
+        self.amplitude_input_value = StringVar(value=0.05)
         self.amplitude_input = Spinbox(self.frame, from_=0, to=10, increment=0.01,
                                        textvariable=self.amplitude_input_value, format='%.3f')
         self.amplitude_input.pack(side=TOP)
@@ -210,7 +247,7 @@ class SquareWaveVoltammetrySingleTestProperties:
         self.step_value_label.pack(side=TOP)
 
         # TODO: do update step value range
-        self.step_value_input_value = DoubleVar(value=0.005)
+        self.step_value_input_value = StringVar(value=0.005)
         self.step_value_input = Spinbox(self.frame, from_=0.001, to=10.0, increment=0.005,
                                         textvariable=self.step_value_input_value,
                                         format='%.3f')
@@ -219,7 +256,7 @@ class SquareWaveVoltammetrySingleTestProperties:
         self.window_label = Label(self.frame, text='Window')
         self.window_label.pack(side=TOP)
 
-        self.window_input_value = DoubleVar(value=0.2)
+        self.window_input_value = StringVar(value=0.2)
         self.window_input = Spinbox(self.frame, from_=0.0, to=1.0, increment=0.1, textvariable=self.window_input_value,
                                     format='%.2f')
         self.window_input.pack(side=TOP)
@@ -248,13 +285,75 @@ class SquareWaveVoltammetrySingleTestProperties:
     def update_quite_value(self):
         self.quite_value_input.set(self.start_value_input_value.get())
 
+    def is_valid(self):
+        properties_name = self.frame['text']
+        try:
+            sample_rate = int(self.sample_rate_input_value.get())
+            if not (1 <= sample_rate <= 200):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nSample rate value must be in range [1; 200]')
+                return FALSE
+
+            quite_value = float(self.quite_value_input_value.get())
+            if not (-10.0 <= quite_value <= 10.0):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nQuite value must be in range [-10; 10]')
+                return FALSE
+
+            quite_time = int(self.quite_time_input.get())
+            if not (0 <= quite_time <= 10000):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nQuite time must be in range [0; 10000]')
+                return FALSE
+
+            amplitude = float(self.amplitude_input_value.get())
+            if not (0.0 <= amplitude <= 10.0):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nAmplitude must be in range [0.0; 10.0]')
+                return FALSE
+
+            start_value = float(self.start_value_input_value.get())
+            if not (-10.0 <= start_value <= 10.0):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nStart value must be in range [-10; 10]')
+                return FALSE
+
+            final_value = float(self.final_value_input_value.get())
+            if not (-10.0 <= final_value <= 10.0):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nFinal value must be in range [-10; 10]')
+                return FALSE
+
+            step_value = float(self.step_value_input_value.get())
+            if not (-10.0 <= step_value <= 10.0):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nStep value must be in range [0.001; 10.0]')
+                return FALSE
+
+            window = float(self.window_input_value.get())
+            if not (0.0 <= window <= 1.0):
+                messagebox.showerror('The error occurred!',
+                                     f'{properties_name}\nWindow must be in range [0.0; 1.0]')
+                return FALSE
+
+        except ValueError as ve:
+            messagebox.showerror('The error occurred!', f'{properties_name}\n{ve.__str__().capitalize()}')
+            return FALSE
+
+        return TRUE
+
 
 class ZnTestOptions:
     """
         Class initializing 'Zn test' options frame including run test button.
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, constant_voltage_test_1_properties, constant_voltage_test_2_properties,
+                 square_wave_voltammetry_test_properties):
+        self.constant_voltage_test_1_properties = constant_voltage_test_1_properties
+        self.constant_voltage_test_2_properties = constant_voltage_test_2_properties
+        self.square_wave_voltammetry_test_properties = square_wave_voltammetry_test_properties
+
         self.frame = LabelFrame(parent, text='Test options')
         self.frame.pack(side=LEFT, anchor=NW)
 
@@ -297,7 +396,11 @@ class ZnTestOptions:
             self.compound_input_value.set(new_entry_value[:15])
 
     def click_run_test_button(self):
-        pass
+        is_valid_properties = self.constant_voltage_test_1_properties.is_valid() and \
+                              self.constant_voltage_test_2_properties.is_valid() and \
+                              self.square_wave_voltammetry_test_properties.is_valid()
+        if is_valid_properties:
+            pass
 
 
 class MainApplication:
@@ -322,7 +425,10 @@ class MainApplication:
         self.constant_voltage_test_1_properties = ConstantVoltageSingleTestProperties(self.tests, 1)
         self.constant_voltage_test_2_properties = ConstantVoltageSingleTestProperties(self.tests, 2)
         self.square_wave_voltammetry_test_properties = SquareWaveVoltammetrySingleTestProperties(self.tests)
-        self.test_options = ZnTestOptions(self.parent)
+        self.test_options = ZnTestOptions(self.parent,
+                                          self.constant_voltage_test_1_properties,
+                                          self.constant_voltage_test_2_properties,
+                                          self.square_wave_voltammetry_test_properties)
 
     def set_initial_properties(self):
         self.parent.title('Potentiostat App. Zn test')
