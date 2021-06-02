@@ -104,7 +104,7 @@ class ConstantVoltageSingleTestProperties:
         self.duration_label.pack(side=TOP)
 
         # TODO: check duration range
-        self.duration_input_value = StringVar(value=20000)
+        self.duration_input_value = StringVar(value=5000)
         self.duration_input = Spinbox(self.frame, from_=1000, to=100000, increment=5000,
                                       textvariable=self.duration_input_value)
         self.duration_input.pack(side=TOP)
