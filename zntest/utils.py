@@ -22,7 +22,7 @@ def connect(port):
     return pstat_obj
 
 
-def run_constant_voltage_test(pstat, context):
+def run_cv_test(pstat, context):
     test_name = 'constant'
     pstat.set_curr_range(context['current_range'])
     pstat.set_sample_rate(context['sample_rate'])
@@ -83,7 +83,7 @@ def run_constant_voltage_test(pstat, context):
             writer.writerow([])
 
 
-def run_square_wave_voltammetry_test(pstat, context):
+def run_swv_test(pstat, context):
     test_name = 'squareWave'
     pstat.set_curr_range(context['current_range'])
     pstat.set_sample_rate(context['sample_rate'])
