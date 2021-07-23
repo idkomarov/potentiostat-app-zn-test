@@ -3,6 +3,7 @@ from tkinter import messagebox
 from tkinter.ttk import *
 
 import zntest.utils as utils
+from zntest.utils import PstatTests
 
 
 class Connection:
@@ -469,7 +470,7 @@ class MainApplication:
             'save_data': is_save_output
         }
 
-        utils.run_cv_test(self.pstat, context)
+        utils.run_pstat_test(self.pstat, PstatTests.CONSTANT_VOLTAGE, context)
 
     def run_swv_test(self, swv_properties, compound, is_save_output):
         context = {
@@ -492,7 +493,7 @@ class MainApplication:
             'save_data': is_save_output
         }
 
-        utils.run_swv_test(self.pstat, context)
+        utils.run_pstat_test(self.pstat, PstatTests.SQUAREWAVE_VOLTAMMETRY, context)
 
     def run_zn_test(self):
         cv1_properties = self.cv1_properties
