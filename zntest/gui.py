@@ -56,7 +56,7 @@ class ConstantVoltageSingleTestProperties:
 
     def __init__(self, parent, test_number):
         self.frame = LabelFrame(parent, text=f'Constant Voltage Test #{test_number}')
-        self.frame.pack(side=LEFT, anchor=NW)
+        self.frame.pack(side=LEFT, anchor=NW, ipady=3)
 
         self.current_range_label = Label(self.frame, text='Current range')
         self.current_range_label.pack(side=TOP)
@@ -109,10 +109,6 @@ class ConstantVoltageSingleTestProperties:
         self.duration_input = Spinbox(self.frame, from_=1000, to=100000, increment=5000,
                                       textvariable=self.duration_input_value)
         self.duration_input.pack(side=TOP)
-
-        self.is_show_plot_value = BooleanVar(value=1)
-        self.show_plot_checkbox = Checkbutton(self.frame, text='Create & show plot', variable=self.is_show_plot_value)
-        self.show_plot_checkbox.pack(side=TOP)
 
         self.disable_all_elements()
 
@@ -465,7 +461,7 @@ class MainApplication:
                 'duration': int(cv_properties.duration_input_value.get()),
             },
 
-            'create_plot': cv_properties.is_show_plot_value.get(),
+            'create_plot': False,
             'compound': compound,
             'save_data': is_save_output
         }
