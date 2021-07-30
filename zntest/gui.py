@@ -154,12 +154,14 @@ class ConstantVoltageSingleTestProperties:
             value = float(self.value_input_value.get())
             if not (-10.0 <= value <= 10.0):
                 messagebox.showerror('The error occurred!',
-                                     f'{properties_name}\nQuite value must be in range [-10; 10]')
+                                     f'{properties_name}\nValue must be in range [-10; 10]')
+                return FALSE
 
             duration = int(self.duration_input_value.get())
-            if not (1000 <= duration <= 100000):
+            if not (1000 <= duration <= 100000000):
                 messagebox.showerror('The error occurred!',
-                                     f'{properties_name}\nQuite value must be in range [1000; 10000]')
+                                     f'{properties_name}\nDuration must be in range [1000; 10000]')
+                return FALSE
 
         except ValueError as ve:
             messagebox.showerror('The error occurred!', f'{properties_name}\n{ve.__str__().capitalize()}')
