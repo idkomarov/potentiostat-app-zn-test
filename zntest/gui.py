@@ -286,9 +286,9 @@ class SquareWaveVoltammetrySingleTestProperties:
         properties_name = self.frame['text']
         try:
             sample_rate = int(self.sample_rate_input_value.get())
-            if not (1 <= sample_rate <= 200):
+            if not (5 <= sample_rate <= 200):
                 messagebox.showerror('The error occurred!',
-                                     f'{properties_name}\nSample rate value must be in range [1; 200]')
+                                     f'{properties_name}\nSample rate value must be in range [5; 200]')
                 return FALSE
 
             quite_value = float(self.quite_value_input_value.get())
