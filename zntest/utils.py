@@ -28,6 +28,13 @@ def connect(port):
     return pstat_obj
 
 
+# TODO: add path with subfolder validation
+def check_subfolder_path(subfolder_name):
+    return True
+    # output_file_folder = os.path.join(os.getcwd(), 'data', 'out', subfolder_name)
+    # return os.path.exists(output_file_folder) or os.access(os.path.dirname(output_file_folder), os.W_OK)
+
+
 def get_pstat_test_name(test_type):
     return {
         PstatTests.CONSTANT_VOLTAGE: 'constant',
@@ -51,8 +58,8 @@ def build_squarewave_plots(t, volt, curr):
     plt.show(block=False)
 
 
-def save_output_data(pstat_test_name, start_time, compound, t, volt, curr):
-    output_file_folder = os.path.join(os.getcwd(), 'data', 'out', pstat_test_name)
+def save_output_data(subfolder_path, pstat_test_name, start_time, compound, t, volt, curr):
+    output_file_folder = os.path.join(os.getcwd(), 'data', 'out', subfolder_path, pstat_test_name)
     if os.path.exists(output_file_folder) is False:
         os.makedirs(output_file_folder)
 
@@ -79,7 +86,7 @@ def save_output_data(pstat_test_name, start_time, compound, t, volt, curr):
             writer.writerow(row)
 
     # put current-potential output to database
-    iv_database_file_path = os.path.join(os.getcwd(), 'data', 'out', pstat_test_name, 'database_I(V).csv')
+    iv_database_file_path = os.path.join(output_file_folder, 'database_I(V).csv')
     if os.path.exists(iv_database_file_path) is False:
         with open(iv_database_file_path, 'w', newline='', encoding='utf-8') as database_file:
             writer = csv.writer(database_file, delimiter=',')
@@ -94,7 +101,7 @@ def save_output_data(pstat_test_name, start_time, compound, t, volt, curr):
             writer.writerow(row)
 
     # put current-time output to database
-    it_database_file_path = os.path.join(os.getcwd(), 'data', 'out', pstat_test_name, 'database_I(t).csv')
+    it_database_file_path = os.path.join(output_file_folder, 'database_I(t).csv')
     if os.path.exists(it_database_file_path) is False:
         with open(it_database_file_path, 'w', newline='', encoding='utf-8') as database_file:
             writer = csv.writer(database_file, delimiter=',')
@@ -126,4 +133,8 @@ def run_pstat_test(pstat, test_type, context):
         build_squarewave_plots(t, volt, curr)
 
     if context['save_data']:
-        save_output_data(pstat_test_name, start_time, context['compound'], t, volt, curr)
+        if context['save_to_specific_folder']:
+            subfolder_path = context['subfolder_path']
+        else:
+            subfolder_path = ''
+        save_output_data(subfolder_path, pstat_test_name, start_time, context['compound'], t, volt, curr)
