@@ -56,7 +56,7 @@ class ConstantVoltageSingleTestProperties:
 
     def __init__(self, parent, test_number):
         self.frame = LabelFrame(parent, text=f'Constant Voltage Test #{test_number}')
-        self.frame.pack(side=LEFT, anchor=NW)
+        self.frame.pack(side=LEFT, anchor=NW, ipady=3)
 
         self.current_range_label = Label(self.frame, text='Current range')
         self.current_range_label.pack(side=TOP)
@@ -109,10 +109,6 @@ class ConstantVoltageSingleTestProperties:
         self.duration_input = Spinbox(self.frame, from_=1000, to=100000, increment=5000,
                                       textvariable=self.duration_input_value)
         self.duration_input.pack(side=TOP)
-
-        self.is_show_plot_value = BooleanVar(value=1)
-        self.show_plot_checkbox = Checkbutton(self.frame, text='Create & show plot', variable=self.is_show_plot_value)
-        self.show_plot_checkbox.pack(side=TOP)
 
         self.disable_all_elements()
 
@@ -363,8 +359,8 @@ class ZnTestOptions:
         self.compound_label.pack(side=TOP)
 
         self.compound_input_value = StringVar(value='ABC')
-        self.compound_input_value.trace('w', lambda name, index, mode: self.limit_compound_entry())
-        self.compound_input = Entry(self.frame, textvariable=self.compound_input_value)
+        self.compound_input_value.trace('w', lambda name, index, mode: self.limit_compound_length())
+        self.compound_input = Entry(self.frame, textvariable=self.compound_input_value, justify='center')
         self.compound_input.pack(side=TOP)
 
         self.is_save_cv_output = BooleanVar(value=1)
@@ -377,8 +373,22 @@ class ZnTestOptions:
                                                        variable=self.is_save_swv_output)
         self.is_save_swv_output_checkbox.pack(side=TOP)
 
+        self.is_save_output_to_subfolder = BooleanVar(value=1)
+        self.is_save_output_to_subfolder_checkbox = Checkbutton(self.frame, text='Save output data to specific folder',
+                                                                variable=self.is_save_output_to_subfolder,
+                                                                command=lambda: self.set_subfolfer_path_field_activity())
+        self.is_save_output_to_subfolder_checkbox.pack(side=TOP)
+
+        self.subfolder_path_label = Label(self.frame, text='Path to save output data')
+        self.subfolder_path_label.pack(side=TOP)
+
+        self.subfolder_path_value = StringVar(value='test')
+        self.subfolder_path_value.trace('w', lambda name, index, mode: self.limit_path_length())
+        self.subfolder_path_input = Entry(self.frame, textvariable=self.subfolder_path_value, justify='center')
+        self.subfolder_path_input.pack(side=TOP)
+
         self.run_test_button = Button(self.frame, text='Run', command=lambda: self.click_run_test_button())
-        self.run_test_button.pack(side=TOP)
+        self.run_test_button.pack(side=TOP, pady=5)
 
         self.disable_all_elements()
 
@@ -390,16 +400,36 @@ class ZnTestOptions:
         for element in self.frame.winfo_children():
             element.config(state=NORMAL)
 
-    def limit_compound_entry(self):
+    def limit_compound_length(self):
         new_entry_value = self.compound_input_value.get()
         if len(new_entry_value) > 15:
             self.compound_input_value.set(new_entry_value[:15])
+
+    def limit_path_length(self):
+        new_entry_value = self.subfolder_path_value.get()
+        if len(new_entry_value) > 30:
+            self.subfolder_path_value.set(new_entry_value[:30])
+
+    def set_subfolfer_path_field_activity(self):
+        new_entry_value = self.is_save_output_to_subfolder.get()
+        if new_entry_value is True:
+            self.subfolder_path_input.config(state=NORMAL)
+        else:
+            self.subfolder_path_input.config(state=DISABLED)
 
     def click_run_test_button(self):
         is_valid_properties = self.cv1_properties.is_valid() and \
                               self.cv2_properties.is_valid() and \
                               self.swv_properties.is_valid()
-        if is_valid_properties:
+
+        is_valid_subfolder_path = True
+        if self.is_save_output_to_subfolder:
+            subfolder = self.subfolder_path_value.get()
+            is_valid_subfolder_path = utils.check_subfolder_path(subfolder)
+            if is_valid_subfolder_path is False:
+                messagebox.showerror('The error occurred', f'Could not save output data to subdir {subfolder}')
+
+        if is_valid_properties and is_valid_subfolder_path:
             self.run_test_fun()
 
 
@@ -429,7 +459,7 @@ class MainApplication:
     def set_initial_properties(self):
         self.parent.title('Potentiostat App. Zn test')
         width = 600
-        height = 580
+        height = 700
         self.parent.geometry(f'{width}x{height}')
         self.parent.resizable(False, False)
 
@@ -465,8 +495,10 @@ class MainApplication:
                 'duration': int(cv_properties.duration_input_value.get()),
             },
 
-            'create_plot': cv_properties.is_show_plot_value.get(),
+            'create_plot': False,
             'compound': compound,
+            'save_to_specific_folder': self.test_options.is_save_output_to_subfolder.get(),
+            'subfolder_path': self.test_options.subfolder_path_value.get(),
             'save_data': is_save_output
         }
 
@@ -490,6 +522,8 @@ class MainApplication:
 
             'create_plot': swv_properties.is_show_plot_value.get(),
             'compound': compound,
+            'save_to_specific_folder': self.test_options.is_save_output_to_subfolder.get(),
+            'subfolder_path': self.test_options.subfolder_path_value.get(),
             'save_data': is_save_output
         }
 
