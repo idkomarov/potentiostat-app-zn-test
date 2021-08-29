@@ -3,6 +3,7 @@ from tkinter import messagebox
 from tkinter.ttk import *
 
 import zntest.utils as utils
+from zntest.utils import PstatTests
 
 
 class Connection:
@@ -229,8 +230,7 @@ class SquareWaveVoltammetrySingleTestProperties:
         self.start_value_input_value = StringVar(value=-1.000)
         self.start_value_input_value.trace('w', lambda name, index, mode: self.update_quite_value())
         self.start_value_input = Spinbox(self.frame, from_=-10.0, to=10.0, increment=1.5,
-                                         textvariable=self.start_value_input_value,
-                                         format='%.3f')
+                                         textvariable=self.start_value_input_value, format='%.3f')
         self.start_value_input.pack(side=TOP)
 
         self.final_value_label = Label(self.frame, text='Final value (V)')
@@ -239,8 +239,7 @@ class SquareWaveVoltammetrySingleTestProperties:
         # TODO: check final value range
         self.final_value_input_value = StringVar(value=1.000)
         self.final_value_input = Spinbox(self.frame, from_=-10.0, to=10.0, increment=1.5,
-                                         textvariable=self.final_value_input_value,
-                                         format='%.3f')
+                                         textvariable=self.final_value_input_value, format='%.3f')
         self.final_value_input.pack(side=TOP)
 
         self.step_value_label = Label(self.frame, text='Step value (V)')
@@ -257,8 +256,8 @@ class SquareWaveVoltammetrySingleTestProperties:
         self.window_label.pack(side=TOP)
 
         self.window_input_value = StringVar(value=0.2)
-        self.window_input = Spinbox(self.frame, from_=0.0, to=1.0, increment=0.1, textvariable=self.window_input_value,
-                                    format='%.2f')
+        self.window_input = Spinbox(self.frame, from_=0.0, to=1.0, increment=0.1,
+                                    textvariable=self.window_input_value, format='%.2f')
         self.window_input.pack(side=TOP)
 
         self.is_show_plot_value = BooleanVar(value=1)
@@ -346,13 +345,15 @@ class SquareWaveVoltammetrySingleTestProperties:
 class ZnTestOptions:
     """
         Class initializing 'Zn test' options frame including run test button.
+        Abbreviations:
+            cv - constant voltage
+            swv - square wave voltammetry
     """
 
-    def __init__(self, parent, constant_voltage_test_1_properties, constant_voltage_test_2_properties,
-                 square_wave_voltammetry_test_properties, run_test_fun):
-        self.constant_voltage_test_1_properties = constant_voltage_test_1_properties
-        self.constant_voltage_test_2_properties = constant_voltage_test_2_properties
-        self.square_wave_voltammetry_test_properties = square_wave_voltammetry_test_properties
+    def __init__(self, parent, cv1_properties, cv2_properties, swv_properties, run_test_fun):
+        self.cv1_properties = cv1_properties
+        self.cv2_properties = cv2_properties
+        self.swv_properties = swv_properties
         self.run_test_fun = run_test_fun
 
         self.frame = LabelFrame(parent, text='Test options')
@@ -366,19 +367,17 @@ class ZnTestOptions:
         self.compound_input = Entry(self.frame, textvariable=self.compound_input_value)
         self.compound_input.pack(side=TOP)
 
-        self.is_save_constant_voltage_tests_output_data = BooleanVar(value=1)
-        self.is_save_constant_voltage_tests_checkbox = Checkbutton(self.frame, text='Save constant voltage output data',
-                                                                   variable=self.is_save_constant_voltage_tests_output_data)
-        self.is_save_constant_voltage_tests_checkbox.pack(side=TOP)
+        self.is_save_cv_output = BooleanVar(value=1)
+        self.is_save_cv_output_checkbox = Checkbutton(self.frame, text='Save constant voltage output data',
+                                                      variable=self.is_save_cv_output)
+        self.is_save_cv_output_checkbox.pack(side=TOP)
 
-        self.is_save_square_wave_voltammetry_test_output_data = BooleanVar(value=1)
-        self.is_save_square_wave_voltammetry_test_checkbox = Checkbutton(self.frame,
-                                                                         text='Save square voltammetry output data',
-                                                                         variable=self.is_save_square_wave_voltammetry_test_output_data)
-        self.is_save_square_wave_voltammetry_test_checkbox.pack(side=TOP)
+        self.is_save_swv_output = BooleanVar(value=1)
+        self.is_save_swv_output_checkbox = Checkbutton(self.frame, text='Save square voltammetry output data',
+                                                       variable=self.is_save_swv_output)
+        self.is_save_swv_output_checkbox.pack(side=TOP)
 
-        self.run_test_button = Button(self.frame, text='Run',
-                                      command=lambda: self.click_run_test_button())
+        self.run_test_button = Button(self.frame, text='Run', command=lambda: self.click_run_test_button())
         self.run_test_button.pack(side=TOP)
 
         self.disable_all_elements()
@@ -397,9 +396,9 @@ class ZnTestOptions:
             self.compound_input_value.set(new_entry_value[:15])
 
     def click_run_test_button(self):
-        is_valid_properties = self.constant_voltage_test_1_properties.is_valid() and \
-                              self.constant_voltage_test_2_properties.is_valid() and \
-                              self.square_wave_voltammetry_test_properties.is_valid()
+        is_valid_properties = self.cv1_properties.is_valid() and \
+                              self.cv2_properties.is_valid() and \
+                              self.swv_properties.is_valid()
         if is_valid_properties:
             self.run_test_fun()
 
@@ -421,14 +420,11 @@ class MainApplication:
         self.tests = LabelFrame(self.parent, text='Inner tests')
         self.tests.pack(side=TOP)
 
-        self.constant_voltage_test_1_properties = ConstantVoltageSingleTestProperties(self.tests, 1)
-        self.constant_voltage_test_2_properties = ConstantVoltageSingleTestProperties(self.tests, 2)
-        self.square_wave_voltammetry_test_properties = SquareWaveVoltammetrySingleTestProperties(self.tests)
-        self.test_options = ZnTestOptions(self.parent,
-                                          self.constant_voltage_test_1_properties,
-                                          self.constant_voltage_test_2_properties,
-                                          self.square_wave_voltammetry_test_properties,
-                                          self.run_test)
+        self.cv1_properties = ConstantVoltageSingleTestProperties(self.tests, 1)
+        self.cv2_properties = ConstantVoltageSingleTestProperties(self.tests, 2)
+        self.swv_properties = SquareWaveVoltammetrySingleTestProperties(self.tests)
+        self.test_options = ZnTestOptions(self.parent, self.cv1_properties, self.cv2_properties,
+                                          self.swv_properties, self.run_zn_test)
 
     def set_initial_properties(self):
         self.parent.title('Potentiostat App. Zn test')
@@ -445,70 +441,70 @@ class MainApplication:
         self.pstat = pstat
         available_current_ranges = self.pstat.get_all_curr_range()
 
-        self.constant_voltage_test_1_properties.enable_all_elements()
-        self.constant_voltage_test_1_properties.set_current_range_values(available_current_ranges)
+        self.cv1_properties.enable_all_elements()
+        self.cv1_properties.set_current_range_values(available_current_ranges)
 
-        self.constant_voltage_test_2_properties.enable_all_elements()
-        self.constant_voltage_test_2_properties.set_current_range_values(available_current_ranges)
+        self.cv2_properties.enable_all_elements()
+        self.cv2_properties.set_current_range_values(available_current_ranges)
 
-        self.square_wave_voltammetry_test_properties.enable_all_elements()
-        self.square_wave_voltammetry_test_properties.set_current_range_values(available_current_ranges)
+        self.swv_properties.enable_all_elements()
+        self.swv_properties.set_current_range_values(available_current_ranges)
 
         self.test_options.enable_all_elements()
 
-    def run_constant_voltage_test_1(self):
-        context = {}
-        context['title'] = self.constant_voltage_test_1_properties.frame['text']
-        context['current_range'] = self.constant_voltage_test_1_properties.current_range_combo.get()
-        context['sample_rate'] = int(self.constant_voltage_test_1_properties.sample_rate_input_value.get())
-        context['param'] = {
-            'quietValue': float(self.constant_voltage_test_1_properties.quite_value_input_value.get()),
-            'quietTime': int(self.constant_voltage_test_1_properties.quite_time_input_value.get()),
-            'value': float(self.constant_voltage_test_1_properties.value_input_value.get()),
-            'duration': int(self.constant_voltage_test_1_properties.duration_input_value.get()),
-        }
-        context['create_plot'] = self.constant_voltage_test_1_properties.is_show_plot_value.get()
-        context['compound'] = self.test_options.compound_input_value.get()
-        context['save_data'] = self.test_options.is_save_constant_voltage_tests_output_data.get()
-        utils.run_constant_voltage_test(self.pstat, context)
+    def run_cv_test(self, cv_properties, compound, is_save_output):
+        context = {
+            'title': cv_properties.frame['text'],
 
-    def run_constant_voltage_test_2(self):
-        context = {}
-        context['title'] = self.constant_voltage_test_2_properties.frame['text']
-        context['current_range'] = self.constant_voltage_test_2_properties.current_range_combo.get()
-        context['sample_rate'] = int(self.constant_voltage_test_2_properties.sample_rate_input_value.get())
-        context['param'] = {
-            'quietValue': float(self.constant_voltage_test_2_properties.quite_value_input_value.get()),
-            'quietTime': int(self.constant_voltage_test_2_properties.quite_time_input_value.get()),
-            'value': float(self.constant_voltage_test_2_properties.value_input_value.get()),
-            'duration': int(self.constant_voltage_test_2_properties.duration_input_value.get()),
-        }
-        context['create_plot'] = self.constant_voltage_test_2_properties.is_show_plot_value.get()
-        context['compound'] = self.test_options.compound_input_value.get()
-        context['save_data'] = self.test_options.is_save_constant_voltage_tests_output_data.get()
-        utils.run_constant_voltage_test(self.pstat, context)
+            'current_range': cv_properties.current_range_combo.get(),
+            'sample_rate': int(cv_properties.sample_rate_input_value.get()),
+            'param': {
+                'quietValue': float(cv_properties.quite_value_input_value.get()),
+                'quietTime': int(cv_properties.quite_time_input_value.get()),
+                'value': float(cv_properties.value_input_value.get()),
+                'duration': int(cv_properties.duration_input_value.get()),
+            },
 
-    def run_square_wave_voltammetry_test(self):
-        context = {}
-        context['title'] = self.square_wave_voltammetry_test_properties.frame['text']
-        context['current_range'] = self.square_wave_voltammetry_test_properties.current_range_combo.get()
-        context['sample_rate'] = int(self.square_wave_voltammetry_test_properties.sample_rate_input_value.get())
-        context['param'] = {
-            'quietValue': float(self.square_wave_voltammetry_test_properties.quite_value_input_value.get()),
-            'quietTime': int(self.square_wave_voltammetry_test_properties.quite_time_input_value.get()),
-            'amplitude': float(self.square_wave_voltammetry_test_properties.amplitude_input_value.get()),
-            'startValue': float(self.square_wave_voltammetry_test_properties.start_value_input_value.get()),
-            'finalValue': float(self.square_wave_voltammetry_test_properties.final_value_input_value.get()),
-            'stepValue': float(self.square_wave_voltammetry_test_properties.step_value_input_value.get()),
-            'window': float(self.square_wave_voltammetry_test_properties.window_input_value.get()),
+            'create_plot': cv_properties.is_show_plot_value.get(),
+            'compound': compound,
+            'save_data': is_save_output
         }
-        context['create_plot'] = self.square_wave_voltammetry_test_properties.is_show_plot_value.get()
-        context['compound'] = self.test_options.compound_input_value.get()
-        context['save_data'] = self.test_options.is_save_square_wave_voltammetry_test_output_data.get()
-        utils.run_square_wave_voltammetry_test(self.pstat, context)
 
-    def run_test(self):
-        self.run_constant_voltage_test_1()
-        self.run_constant_voltage_test_2()
-        self.run_square_wave_voltammetry_test()
+        utils.run_pstat_test(self.pstat, PstatTests.CONSTANT_VOLTAGE, context)
+
+    def run_swv_test(self, swv_properties, compound, is_save_output):
+        context = {
+            'title': swv_properties.frame['text'],
+
+            'current_range': swv_properties.current_range_combo.get(),
+            'sample_rate': int(swv_properties.sample_rate_input_value.get()),
+            'param': {
+                'quietValue': float(swv_properties.quite_value_input_value.get()),
+                'quietTime': int(swv_properties.quite_time_input_value.get()),
+                'amplitude': float(swv_properties.amplitude_input_value.get()),
+                'startValue': float(swv_properties.start_value_input_value.get()),
+                'finalValue': float(swv_properties.final_value_input_value.get()),
+                'stepValue': float(swv_properties.step_value_input_value.get()),
+                'window': float(swv_properties.window_input_value.get()),
+            },
+
+            'create_plot': swv_properties.is_show_plot_value.get(),
+            'compound': compound,
+            'save_data': is_save_output
+        }
+
+        utils.run_pstat_test(self.pstat, PstatTests.SQUAREWAVE_VOLTAMMETRY, context)
+
+    def run_zn_test(self):
+        cv1_properties = self.cv1_properties
+        cv2_properties = self.cv2_properties
+        swv_properties = self.swv_properties
+
+        compound = self.test_options.compound_input_value.get()
+        is_save_cv_output = self.test_options.is_save_cv_output.get()
+        is_save_swv_output = self.test_options.is_save_swv_output.get()
+
+        self.run_cv_test(cv1_properties, compound, is_save_cv_output)
+        self.run_cv_test(cv2_properties, compound, is_save_cv_output)
+        self.run_swv_test(swv_properties, compound, is_save_swv_output)
         print()
