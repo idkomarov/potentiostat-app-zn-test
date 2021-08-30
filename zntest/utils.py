@@ -1,13 +1,14 @@
 import csv
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum, auto
 from json.decoder import JSONDecodeError
 
 import matplotlib.pyplot as plt
 import serial.tools.list_ports
-from potentiostat import Potentiostat
 from serial.serialutil import SerialException
+
+from lib.pstat import Pstat
 
 
 class PstatTests(Enum):
@@ -22,7 +23,7 @@ def get_available_ports():
 def connect(port):
     pstat_obj = None
     try:
-        pstat_obj = Potentiostat(port, timeout=1.5)
+        pstat_obj = Pstat(port, timeout=1.5)
     except (SerialException, JSONDecodeError):
         pass
     return pstat_obj
@@ -35,7 +36,27 @@ def check_subfolder_path(subfolder_name):
     # return os.path.exists(output_file_folder) or os.access(os.path.dirname(output_file_folder), os.W_OK)
 
 
-def get_pstat_test_name(test_type):
+def get_test_duration(pstat: Pstat, test_type: PstatTests, context: dict):
+    pstat.set_curr_range(context['current_range'])
+    pstat.set_sample_rate(context['sample_rate'])
+    pstat_test_name = get_pstat_test_name(test_type)
+    param = context['param']
+    return pstat.get_test_duration(pstat_test_name, param)
+
+
+def print_zn_test_duration(pstat: Pstat, pstat_single_tests: dict):
+    zn_test_duration = 0
+    for key in pstat_single_tests.keys():
+        for value in pstat_single_tests[key]:
+            zn_test_duration += get_test_duration(pstat, key, value)
+
+    start_time = datetime.now()
+    end_time = start_time + timedelta(seconds=zn_test_duration)
+    print(f'[{start_time.strftime("%H:%M:%S")}]\tZn test duration is {zn_test_duration} seconds. '
+          f'Expected end time is {end_time.strftime("%H:%M:%S")}.')
+
+
+def get_pstat_test_name(test_type: PstatTests):
     return {
         PstatTests.CONSTANT_VOLTAGE: 'constant',
         PstatTests.SQUAREWAVE_VOLTAMMETRY: 'squareWave'

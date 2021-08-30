@@ -546,6 +546,13 @@ class MainApplication:
         is_save_cv_output = self.test_options.is_save_cv_output.get()
         is_save_swv_output = self.test_options.is_save_swv_output.get()
 
+        pstat_single_tests = {
+            PstatTests.CONSTANT_VOLTAGE: (cv1_properties.get_properties(), cv2_properties.get_properties(),),
+            PstatTests.SQUAREWAVE_VOLTAMMETRY: (swv_properties.get_properties(),)
+        }
+
+        utils.print_zn_test_duration(self.pstat, pstat_single_tests)
+
         self.run_cv_test(cv1_properties, compound, is_save_cv_output)
         self.run_cv_test(cv2_properties, compound, is_save_cv_output)
         self.run_swv_test(swv_properties, compound, is_save_swv_output)
