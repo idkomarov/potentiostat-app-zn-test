@@ -169,6 +169,18 @@ class ConstantVoltageSingleTestProperties:
 
         return TRUE
 
+    def get_properties(self):
+        return {
+            'current_range': self.current_range_combo.get(),
+            'sample_rate': int(self.sample_rate_input_value.get()),
+            'param': {
+                'quietValue': float(self.quite_value_input_value.get()),
+                'quietTime': int(self.quite_time_input_value.get()),
+                'value': float(self.value_input_value.get()),
+                'duration': int(self.duration_input_value.get()),
+            }
+        }
+
 
 class SquareWaveVoltammetrySingleTestProperties:
     """
@@ -339,6 +351,21 @@ class SquareWaveVoltammetrySingleTestProperties:
 
         return TRUE
 
+    def get_properties(self):
+        return {
+            'current_range': self.current_range_combo.get(),
+            'sample_rate': int(self.sample_rate_input_value.get()),
+            'param': {
+                'quietValue': float(self.quite_value_input_value.get()),
+                'quietTime': int(self.quite_time_input_value.get()),
+                'amplitude': float(self.amplitude_input_value.get()),
+                'startValue': float(self.start_value_input_value.get()),
+                'finalValue': float(self.final_value_input_value.get()),
+                'stepValue': float(self.step_value_input_value.get()),
+                'window': float(self.window_input_value.get()),
+            }
+        }
+
 
 class ZnTestOptions:
     """
@@ -488,15 +515,6 @@ class MainApplication:
         context = {
             'title': cv_properties.frame['text'],
 
-            'current_range': cv_properties.current_range_combo.get(),
-            'sample_rate': int(cv_properties.sample_rate_input_value.get()),
-            'param': {
-                'quietValue': float(cv_properties.quite_value_input_value.get()),
-                'quietTime': int(cv_properties.quite_time_input_value.get()),
-                'value': float(cv_properties.value_input_value.get()),
-                'duration': int(cv_properties.duration_input_value.get()),
-            },
-
             'create_plot': False,
             'compound': compound,
             'save_to_specific_folder': self.test_options.is_save_output_to_subfolder.get(),
@@ -504,23 +522,11 @@ class MainApplication:
             'save_data': is_save_output
         }
 
-        utils.run_pstat_test(self.pstat, PstatTests.CONSTANT_VOLTAGE, context)
+        utils.run_pstat_test(self.pstat, PstatTests.CONSTANT_VOLTAGE, context | cv_properties.get_properties())
 
     def run_swv_test(self, swv_properties, compound, is_save_output):
         context = {
             'title': swv_properties.frame['text'],
-
-            'current_range': swv_properties.current_range_combo.get(),
-            'sample_rate': int(swv_properties.sample_rate_input_value.get()),
-            'param': {
-                'quietValue': float(swv_properties.quite_value_input_value.get()),
-                'quietTime': int(swv_properties.quite_time_input_value.get()),
-                'amplitude': float(swv_properties.amplitude_input_value.get()),
-                'startValue': float(swv_properties.start_value_input_value.get()),
-                'finalValue': float(swv_properties.final_value_input_value.get()),
-                'stepValue': float(swv_properties.step_value_input_value.get()),
-                'window': float(swv_properties.window_input_value.get()),
-            },
 
             'create_plot': swv_properties.is_show_plot_value.get(),
             'compound': compound,
@@ -529,7 +535,7 @@ class MainApplication:
             'save_data': is_save_output
         }
 
-        utils.run_pstat_test(self.pstat, PstatTests.SQUAREWAVE_VOLTAMMETRY, context)
+        utils.run_pstat_test(self.pstat, PstatTests.SQUAREWAVE_VOLTAMMETRY, context | swv_properties.get_properties())
 
     def run_zn_test(self):
         cv1_properties = self.cv1_properties
