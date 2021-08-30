@@ -86,12 +86,12 @@ class ConstantVoltageSingleTestProperties:
                                          textvariable=self.quite_value_input_value, format='%.3f')
         self.quite_value_input.pack(side=TOP)
 
-        self.quite_time_label = Label(self.frame, text='Quite Time (ms)')
+        self.quite_time_label = Label(self.frame, text='Quite Time (sec)')
         self.quite_time_label.pack(side=TOP)
 
         # TODO: check quite time range
-        self.quite_time_input_value = StringVar(value=1000)
-        self.quite_time_input = Spinbox(self.frame, from_=0, to=10000, increment=1000,
+        self.quite_time_input_value = StringVar(value=1)
+        self.quite_time_input = Spinbox(self.frame, from_=0, to=10, increment=1,
                                         textvariable=self.quite_time_input_value)
         self.quite_time_input.pack(side=TOP)
 
@@ -105,12 +105,12 @@ class ConstantVoltageSingleTestProperties:
                                    format='%.3f')
         self.value_input.pack(side=TOP)
 
-        self.duration_label = Label(self.frame, text='Duration (ms)')
+        self.duration_label = Label(self.frame, text='Duration (sec)')
         self.duration_label.pack(side=TOP)
 
         # TODO: check duration range
-        self.duration_input_value = StringVar(value=5000)
-        self.duration_input = Spinbox(self.frame, from_=1000, to=100000, increment=5000,
+        self.duration_input_value = StringVar(value=5)
+        self.duration_input = Spinbox(self.frame, from_=1, to=100, increment=5,
                                       textvariable=self.duration_input_value)
         self.duration_input.pack(side=TOP)
 
@@ -179,9 +179,9 @@ class ConstantVoltageSingleTestProperties:
             'sample_rate': int(self.sample_rate_input_value.get()),
             'param': {
                 'quietValue': float(self.quite_value_input_value.get()),
-                'quietTime': int(self.quite_time_input_value.get()),
+                'quietTime': int(self.quite_time_input_value.get()) * 1000,
                 'value': float(self.value_input_value.get()),
-                'duration': int(self.duration_input_value.get()),
+                'duration': int(self.duration_input_value.get()) * 1000,
             }
         }
 
@@ -232,8 +232,8 @@ class SquareWaveVoltammetrySingleTestProperties:
         self.quite_time_label.pack(side=TOP)
 
         # TODO: check quite time range
-        self.quite_time_input_value = StringVar(value=1000)
-        self.quite_time_input = Spinbox(self.frame, from_=0, to=10000, increment=1000,
+        self.quite_time_input_value = StringVar(value=1)
+        self.quite_time_input = Spinbox(self.frame, from_=0, to=10, increment=1,
                                         textvariable=self.quite_time_input_value)
         self.quite_time_input.pack(side=TOP)
 
@@ -324,9 +324,9 @@ class SquareWaveVoltammetrySingleTestProperties:
                 return FALSE
 
             quite_time = int(self.quite_time_input.get())
-            if not (0 <= quite_time <= 10000):
+            if not (0 <= quite_time <= 10):
                 messagebox.showerror('The error occurred!',
-                                     f'{properties_name}\nQuite time must be in range [0; 10000]')
+                                     f'{properties_name}\nQuite time must be in range [0; 10]')
                 return FALSE
 
             amplitude = float(self.amplitude_input_value.get())
@@ -371,7 +371,7 @@ class SquareWaveVoltammetrySingleTestProperties:
             'sample_rate': int(self.sample_rate_input_value.get()),
             'param': {
                 'quietValue': float(self.quite_value_input_value.get()),
-                'quietTime': int(self.quite_time_input_value.get()),
+                'quietTime': int(self.quite_time_input_value.get()) * 1000,
                 'amplitude': float(self.amplitude_input_value.get()),
                 'startValue': float(self.start_value_input_value.get()),
                 'finalValue': float(self.final_value_input_value.get()),
