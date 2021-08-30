@@ -1,9 +1,10 @@
+from datetime import datetime, timedelta
 from tkinter import *
 from tkinter import messagebox
 from tkinter.ttk import *
 
 import zntest.utils as utils
-from zntest.utils import PstatTests
+from lib.pstat import PstatTests
 
 
 class Connection:
@@ -55,6 +56,9 @@ class ConstantVoltageSingleTestProperties:
     """
 
     def __init__(self, parent, test_number):
+        self._test_type = PstatTests.CONSTANT_VOLTAGE
+        self._enable_build_plot = False
+
         self.frame = LabelFrame(parent, text=f'Constant Voltage Test #{test_number}')
         self.frame.pack(side=LEFT, anchor=NW, ipady=3)
 
@@ -169,6 +173,24 @@ class ConstantVoltageSingleTestProperties:
 
         return TRUE
 
+    def get_properties(self):
+        return {
+            'current_range': self.current_range_combo.get(),
+            'sample_rate': int(self.sample_rate_input_value.get()),
+            'param': {
+                'quietValue': float(self.quite_value_input_value.get()),
+                'quietTime': int(self.quite_time_input_value.get()),
+                'value': float(self.value_input_value.get()),
+                'duration': int(self.duration_input_value.get()),
+            }
+        }
+
+    def get_test_type(self):
+        return self._test_type
+
+    def get_enable_build_plot(self):
+        return self._enable_build_plot
+
 
 class SquareWaveVoltammetrySingleTestProperties:
     """
@@ -176,6 +198,9 @@ class SquareWaveVoltammetrySingleTestProperties:
     """
 
     def __init__(self, parent):
+        self._test_type = PstatTests.SQUAREWAVE_VOLTAMMETRY
+        self._enable_build_plot = True
+
         self.frame = LabelFrame(parent, text=f'Square Wave Voltammetry')
         self.frame.pack(side=LEFT, anchor=NW)
 
@@ -259,7 +284,8 @@ class SquareWaveVoltammetrySingleTestProperties:
         self.window_input.pack(side=TOP)
 
         self.is_show_plot_value = BooleanVar(value=1)
-        self.show_plot_checkbox = Checkbutton(self.frame, text='Create & show plot', variable=self.is_show_plot_value)
+        self.show_plot_checkbox = Checkbutton(self.frame, text='Create & show plot', variable=self.is_show_plot_value,
+                                              command=lambda: self.set_enable_build_plot())
         self.show_plot_checkbox.pack(side=TOP)
 
         self.disable_all_elements()
@@ -339,6 +365,30 @@ class SquareWaveVoltammetrySingleTestProperties:
 
         return TRUE
 
+    def get_properties(self):
+        return {
+            'current_range': self.current_range_combo.get(),
+            'sample_rate': int(self.sample_rate_input_value.get()),
+            'param': {
+                'quietValue': float(self.quite_value_input_value.get()),
+                'quietTime': int(self.quite_time_input_value.get()),
+                'amplitude': float(self.amplitude_input_value.get()),
+                'startValue': float(self.start_value_input_value.get()),
+                'finalValue': float(self.final_value_input_value.get()),
+                'stepValue': float(self.step_value_input_value.get()),
+                'window': float(self.window_input_value.get()),
+            }
+        }
+
+    def get_test_type(self):
+        return self._test_type
+
+    def set_enable_build_plot(self):
+        self._enable_build_plot = self.is_show_plot_value.get()
+
+    def get_enable_build_plot(self):
+        return self._enable_build_plot
+
 
 class ZnTestOptions:
     """
@@ -378,7 +428,7 @@ class ZnTestOptions:
         self.is_save_output_to_subfolder = BooleanVar(value=1)
         self.is_save_output_to_subfolder_checkbox = Checkbutton(self.frame, text='Save output data to specific folder',
                                                                 variable=self.is_save_output_to_subfolder,
-                                                                command=lambda: self.set_subfolfer_path_field_activity())
+                                                                command=lambda: self.set_subfolder_path_field_activity())
         self.is_save_output_to_subfolder_checkbox.pack(side=TOP)
 
         self.subfolder_path_label = Label(self.frame, text='Path to save output data')
@@ -412,7 +462,7 @@ class ZnTestOptions:
         if len(new_entry_value) > 30:
             self.subfolder_path_value.set(new_entry_value[:30])
 
-    def set_subfolfer_path_field_activity(self):
+    def set_subfolder_path_field_activity(self):
         new_entry_value = self.is_save_output_to_subfolder.get()
         if new_entry_value is True:
             self.subfolder_path_input.config(state=NORMAL)
@@ -458,6 +508,8 @@ class MainApplication:
         self.test_options = ZnTestOptions(self.parent, self.cv1_properties, self.cv2_properties,
                                           self.swv_properties, self.run_zn_test)
 
+        self.zn_test = [self.cv1_properties, self.cv2_properties, self.swv_properties]
+
     def set_initial_properties(self):
         self.parent.title('Potentiostat App. Zn test')
         width = 600
@@ -484,63 +536,37 @@ class MainApplication:
 
         self.test_options.enable_all_elements()
 
-    def run_cv_test(self, cv_properties, compound, is_save_output):
+    def run_single_test(self, single_test, compound, enable_save_output_data):
         context = {
-            'title': cv_properties.frame['text'],
+            'title': single_test.frame['text'],
 
-            'current_range': cv_properties.current_range_combo.get(),
-            'sample_rate': int(cv_properties.sample_rate_input_value.get()),
-            'param': {
-                'quietValue': float(cv_properties.quite_value_input_value.get()),
-                'quietTime': int(cv_properties.quite_time_input_value.get()),
-                'value': float(cv_properties.value_input_value.get()),
-                'duration': int(cv_properties.duration_input_value.get()),
-            },
-
-            'create_plot': False,
+            'create_plot': single_test.get_enable_build_plot(),
             'compound': compound,
             'save_to_specific_folder': self.test_options.is_save_output_to_subfolder.get(),
             'subfolder_path': self.test_options.subfolder_path_value.get(),
-            'save_data': is_save_output
+            'save_data': enable_save_output_data
         }
 
-        utils.run_pstat_test(self.pstat, PstatTests.CONSTANT_VOLTAGE, context)
+        utils.run_pstat_test(self.pstat, single_test.get_test_type(), context | single_test.get_properties())
 
-    def run_swv_test(self, swv_properties, compound, is_save_output):
-        context = {
-            'title': swv_properties.frame['text'],
-
-            'current_range': swv_properties.current_range_combo.get(),
-            'sample_rate': int(swv_properties.sample_rate_input_value.get()),
-            'param': {
-                'quietValue': float(swv_properties.quite_value_input_value.get()),
-                'quietTime': int(swv_properties.quite_time_input_value.get()),
-                'amplitude': float(swv_properties.amplitude_input_value.get()),
-                'startValue': float(swv_properties.start_value_input_value.get()),
-                'finalValue': float(swv_properties.final_value_input_value.get()),
-                'stepValue': float(swv_properties.step_value_input_value.get()),
-                'window': float(swv_properties.window_input_value.get()),
-            },
-
-            'create_plot': swv_properties.is_show_plot_value.get(),
-            'compound': compound,
-            'save_to_specific_folder': self.test_options.is_save_output_to_subfolder.get(),
-            'subfolder_path': self.test_options.subfolder_path_value.get(),
-            'save_data': is_save_output
-        }
-
-        utils.run_pstat_test(self.pstat, PstatTests.SQUAREWAVE_VOLTAMMETRY, context)
+    def print_end_zn_test_time(self):
+        zn_test_duration = 0
+        for single_test in self.zn_test:
+            zn_test_duration += utils.get_test_duration(self.pstat,
+                                                        single_test.get_test_type(),
+                                                        single_test.get_properties())
+        end_time = datetime.now() + timedelta(seconds=zn_test_duration)
+        utils.log(f'Expected end time is {end_time.strftime("%H:%M:%S")}')
 
     def run_zn_test(self):
-        cv1_properties = self.cv1_properties
-        cv2_properties = self.cv2_properties
-        swv_properties = self.swv_properties
+        self.print_end_zn_test_time()
 
         compound = self.test_options.compound_input_value.get()
-        is_save_cv_output = self.test_options.is_save_cv_output.get()
-        is_save_swv_output = self.test_options.is_save_swv_output.get()
-
-        self.run_cv_test(cv1_properties, compound, is_save_cv_output)
-        self.run_cv_test(cv2_properties, compound, is_save_cv_output)
-        self.run_swv_test(swv_properties, compound, is_save_swv_output)
+        save_output_data_map = {
+            PstatTests.CONSTANT_VOLTAGE: self.test_options.is_save_cv_output.get(),
+            PstatTests.SQUAREWAVE_VOLTAMMETRY: self.test_options.is_save_swv_output.get(),
+        }
+        for single_test in self.zn_test:
+            save_output_data = save_output_data_map[single_test.get_test_type()]
+            self.run_single_test(single_test, compound, save_output_data)
         print()
