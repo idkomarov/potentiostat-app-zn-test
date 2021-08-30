@@ -141,39 +141,39 @@ class ConstantVoltageSingleTestProperties:
             if not (1 <= sample_rate <= 200):
                 messagebox.showerror('The error occurred!',
                                      f'{properties_name}\nSample rate value must be in range [1; 200]')
-                return FALSE
+                return False
 
             quite_value = float(self.quite_value_input_value.get())
             if not (-10.0 <= quite_value <= 10.0):
                 messagebox.showerror('The error occurred!',
                                      f'{properties_name}\nQuite value must be in range [-10; 10]')
-                return FALSE
+                return False
 
             quite_time = int(self.quite_time_input.get())
-            if not (0 <= quite_time <= 10000):
+            if not (0 <= quite_time <= 10):
                 messagebox.showerror('The error occurred!',
-                                     f'{properties_name}\nQuite time must be in range [0; 10000]')
-                return FALSE
+                                     f'{properties_name}\nQuite time must be in range [0; 10]')
+                return False
 
             value = float(self.value_input_value.get())
             if not (-10.0 <= value <= 10.0):
                 messagebox.showerror('The error occurred!',
                                      f'{properties_name}\nValue must be in range [-10; 10]')
-                return FALSE
+                return False
 
             duration = int(self.duration_input_value.get())
-            if not (1000 <= duration <= 100000000):
+            if not (1 <= duration <= 100):
                 messagebox.showerror('The error occurred!',
-                                     f'{properties_name}\nDuration must be in range [1000; 10000]')
-                return FALSE
+                                     f'{properties_name}\nDuration must be in range [1; 100]')
+                return False
 
         except ValueError as ve:
             messagebox.showerror('The error occurred!', f'{properties_name}\n{ve.__str__().capitalize()}')
             return FALSE
 
-        return TRUE
+        return True
 
-    def get_properties(self):
+    def get(self):
         return {
             'current_range': self.current_range_combo.get(),
             'sample_rate': int(self.sample_rate_input_value.get()),
@@ -315,57 +315,57 @@ class SquareWaveVoltammetrySingleTestProperties:
             if not (5 <= sample_rate <= 200):
                 messagebox.showerror('The error occurred!',
                                      f'{properties_name}\nSample rate value must be in range [5; 200]')
-                return FALSE
+                return False
 
             quite_value = float(self.quite_value_input_value.get())
             if not (-10.0 <= quite_value <= 10.0):
                 messagebox.showerror('The error occurred!',
                                      f'{properties_name}\nQuite value must be in range [-10; 10]')
-                return FALSE
+                return False
 
             quite_time = int(self.quite_time_input.get())
             if not (0 <= quite_time <= 10):
                 messagebox.showerror('The error occurred!',
                                      f'{properties_name}\nQuite time must be in range [0; 10]')
-                return FALSE
+                return False
 
             amplitude = float(self.amplitude_input_value.get())
             if not (0.0 <= amplitude <= 10.0):
                 messagebox.showerror('The error occurred!',
                                      f'{properties_name}\nAmplitude must be in range [0.0; 10.0]')
-                return FALSE
+                return False
 
             start_value = float(self.start_value_input_value.get())
             if not (-10.0 <= start_value <= 10.0):
                 messagebox.showerror('The error occurred!',
                                      f'{properties_name}\nStart value must be in range [-10; 10]')
-                return FALSE
+                return False
 
             final_value = float(self.final_value_input_value.get())
             if not (-10.0 <= final_value <= 10.0):
                 messagebox.showerror('The error occurred!',
                                      f'{properties_name}\nFinal value must be in range [-10; 10]')
-                return FALSE
+                return False
 
             step_value = float(self.step_value_input_value.get())
             if not (-10.0 <= step_value <= 10.0):
                 messagebox.showerror('The error occurred!',
                                      f'{properties_name}\nStep value must be in range [0.001; 10.0]')
-                return FALSE
+                return False
 
             window = float(self.window_input_value.get())
             if not (0.0 <= window <= 1.0):
                 messagebox.showerror('The error occurred!',
                                      f'{properties_name}\nWindow must be in range [0.0; 1.0]')
-                return FALSE
+                return False
 
         except ValueError as ve:
             messagebox.showerror('The error occurred!', f'{properties_name}\n{ve.__str__().capitalize()}')
-            return FALSE
+            return False
 
-        return TRUE
+        return True
 
-    def get_properties(self):
+    def get(self):
         return {
             'current_range': self.current_range_combo.get(),
             'sample_rate': int(self.sample_rate_input_value.get()),
@@ -536,25 +536,25 @@ class MainApplication:
 
         self.test_options.enable_all_elements()
 
-    def run_single_test(self, single_test, compound, enable_save_output_data):
+    def run_single_test(self, single_test_properties, compound, enable_save_output_data):
         context = {
-            'title': single_test.frame['text'],
+            'title': single_test_properties.frame['text'],
 
-            'create_plot': single_test.get_enable_build_plot(),
+            'create_plot': single_test_properties.get_enable_build_plot(),
             'compound': compound,
             'save_to_specific_folder': self.test_options.is_save_output_to_subfolder.get(),
             'subfolder_path': self.test_options.subfolder_path_value.get(),
             'save_data': enable_save_output_data
         }
 
-        utils.run_pstat_test(self.pstat, single_test.get_test_type(), context | single_test.get_properties())
+        utils.run_pstat_test(self.pstat, single_test_properties.get_test_type(), context | single_test_properties.get())
 
     def print_end_zn_test_time(self):
         zn_test_duration = 0
         for single_test in self.zn_test:
             zn_test_duration += utils.get_test_duration(self.pstat,
                                                         single_test.get_test_type(),
-                                                        single_test.get_properties())
+                                                        single_test.get())
         end_time = datetime.now() + timedelta(seconds=zn_test_duration)
         utils.log(f'Expected end time is {end_time.strftime("%H:%M:%S")}')
 
