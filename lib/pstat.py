@@ -1,4 +1,11 @@
+from enum import Enum, auto
+
 from potentiostat import Potentiostat
+
+
+class PstatTests(Enum):
+    CONSTANT_VOLTAGE = auto()
+    SQUAREWAVE_VOLTAMMETRY = auto()
 
 
 class Pstat(Potentiostat):

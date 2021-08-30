@@ -1,19 +1,17 @@
 import csv
 import os
-from datetime import datetime, timedelta
-from enum import Enum, auto
+from datetime import datetime
 from json.decoder import JSONDecodeError
 
 import matplotlib.pyplot as plt
 import serial.tools.list_ports
 from serial.serialutil import SerialException
 
-from lib.pstat import Pstat
+from lib.pstat import Pstat, PstatTests
 
 
-class PstatTests(Enum):
-    CONSTANT_VOLTAGE = auto()
-    SQUAREWAVE_VOLTAMMETRY = auto()
+def log(message: str):
+    print(f'[{datetime.now().strftime("%H:%M:%S")}]\t{message}')
 
 
 def get_available_ports():
@@ -42,18 +40,6 @@ def get_test_duration(pstat: Pstat, test_type: PstatTests, context: dict):
     pstat_test_name = get_pstat_test_name(test_type)
     param = context['param']
     return pstat.get_test_duration(pstat_test_name, param)
-
-
-def print_zn_test_duration(pstat: Pstat, pstat_single_tests: dict):
-    zn_test_duration = 0
-    for key in pstat_single_tests.keys():
-        for value in pstat_single_tests[key]:
-            zn_test_duration += get_test_duration(pstat, key, value)
-
-    start_time = datetime.now()
-    end_time = start_time + timedelta(seconds=zn_test_duration)
-    print(f'[{start_time.strftime("%H:%M:%S")}]\tZn test duration is {zn_test_duration} seconds. '
-          f'Expected end time is {end_time.strftime("%H:%M:%S")}.')
 
 
 def get_pstat_test_name(test_type: PstatTests):
@@ -145,9 +131,9 @@ def run_pstat_test(pstat, test_type, context):
     pstat.set_sample_rate(context['sample_rate'])
 
     start_time = datetime.now()
-    print('[{}]\t{} is starting'.format(start_time.strftime("%H:%M:%S"), context['title']))
+    log(f'{context["title"]} is starting')
     t, volt, curr = pstat.run_test(pstat_test_name, param=context['param'], display=None)
-    print('[{}]\t{} finished'.format(datetime.now().strftime("%H:%M:%S"), context['title']))
+    log(f'{context["title"]} finished')
 
     if test_type is PstatTests.SQUAREWAVE_VOLTAMMETRY and \
             context['create_plot']:
